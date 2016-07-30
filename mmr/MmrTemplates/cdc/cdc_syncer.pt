@@ -1,0 +1,13 @@
+module cdc_syncer # (
+   parameter sync_depth = 5
+) (
+   input  wire sig_in  ,
+   input  wire out_clk ,
+   output reg  sig_out
+);
+reg [sync_depth-2:0] int_shift=0;
+always @(posedge sig_in) begin
+   {sig_out,int_shift} <= {int_shift,sig_in}
+end
+
+endmodule

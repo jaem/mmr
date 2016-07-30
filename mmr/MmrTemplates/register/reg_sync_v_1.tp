@@ -1,0 +1,86 @@
+[% INCLUDE MmrTemplates/commonHeaders/common_verilog_1.tp %]
+[% INCLUDE MmrTemplates/commonHeaders/common_verilog_header_1.tp %]
+module [% cfg.module %] #(
+  parameter DATA_W_IN_BYTES           = 4,
+  parameter ADDR_W_IN_BITS            = 32,
+  parameter DCADDR_LOW_BIT_W          = [% topcfg.addrLowWidth %]
+) (
+
+[% FOREACH signal IN cfg.work.inputwire -%]
+[% PERL %]
+#print (sprintf("  input  wire [ %-*d:0] %-*s; //\n", 4, 1000, 40, $stash->get('signal.key')));
+[% END -%]
+  input  [% signal.value -%],
+[% END -%]
+
+[% FOREACH signal IN cfg.work.outputreg -%]
+  output [% signal.value -%],
+[% END -%]
+
+  input  wire                                       reg_bank_rd_start, // read start strobe
+  output wire                                       reg_bank_rd_done,  // read done  strobe
+  input  wire [DCADDR_LOW_BIT_W - 1:0]              reg_bank_rd_addr,  // read address bus
+  output reg  [(DATA_W_IN_BYTES*8) - 1:0]           reg_bank_rd_data=0,// read data bus
+
+  input  wire                                       reg_bank_wr_start, // write start strobe
+  output wire                                       reg_bank_wr_done,  // write done  strobe
+  input  wire [DCADDR_LOW_BIT_W - 1:0]              reg_bank_wr_addr,  // write address bus
+  input  wire [(DATA_W_IN_BYTES*8) - 1:0]           reg_bank_wr_data,  // write data bus
+
+  input  wire                                       ACLK             , // Clock source 
+  input  wire                                       ARESETn            // Reset source
+
+);
+
+//------------------------------------------------------------------------------
+// Declare registers
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// In the basic bank these are completed straight away. Recall ....XX_start is
+// a registered signal.
+//------------------------------------------------------------------------------
+assign reg_bank_wr_done = reg_bank_wr_start;
+assign reg_bank_rd_done = reg_bank_rd_start;
+
+//------------------------------------------------------------------------------
+// Write logic
+//------------------------------------------------------------------------------
+always @(posedge ACLK) begin
+   if(!ARESETn) begin
+[% FOREACH signal IN cfg.work.regreset -%]
+      [% signal.value -%];
+[% END -%]
+   end else begin
+      if(reg_bank_wr_start) begin
+         case (reg_bank_wr_addr[DCADDR_LOW_BIT_W-1:2])
+[% FOREACH address IN cfg.work.regwrite -%]
+         [% address.key -%] : begin
+[% FOREACH signal IN address.value -%]
+             [% signal.value %];
+[% END -%]
+         end
+[% END -%]
+         endcase
+      end
+   end
+end
+
+//------------------------------------------------------------------------------
+// READ logic
+//------------------------------------------------------------------------------
+always @(*) begin
+    // Zero the complete bus. We will set specific bits in the case
+    reg_bank_rd_data = 'd0;
+    case (reg_bank_rd_addr[DCADDR_LOW_BIT_W-1:2])
+[% FOREACH address IN cfg.work.regread -%]
+    [% address.key -%] : begin
+[% FOREACH signal IN address.value -%]
+         reg_bank_rd_data[% signal.value %];
+[% END -%]
+    end
+[% END -%]
+    endcase
+end
+
+endmodule

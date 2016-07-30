@@ -1,0 +1,84 @@
+[% PERL %]
+# Load modules we use in the template here and store using stash so we 
+# can use later on as objects accessing their functions.
+use MmrPm::Register::Hdl::Verilog::Assignments;
+$stash->set('sub.ass', MmrPm::Register::Hdl::Verilog::Assignments->new);
+[% END %]
+//
+// Module [% cfg.name %]
+// 
+module jjreg_tmp_reg_basic #(
+  parameter DATA_W_IN_BYTES           = 4,
+  parameter DCADDR_LOW_BIT_W          = [% cfg.addrLowWidth %]
+) (
+
+  [% PERL %] print $stash->get('sub.ass')->show($stash->get('blocks.0')); [% END %]
+
+  input  wire                                       reg_bank_rd_start, // read start strobe
+  output wire                                       reg_bank_rd_done,  // read done  strobe
+  input  wire [DCADDR_LOW_BIT_W - 1:0]              reg_bank_rd_addr,  // read address bus
+  output reg  [(DATA_W_IN_BYTES*8) - 1:0]           reg_bank_rd_data=0,// read data bus
+
+  input  wire                                       reg_bank_wr_start, // write start strobe
+  output wire                                       reg_bank_wr_done,  // write done  strobe
+  input  wire [DCADDR_LOW_BIT_W - 1:0]              reg_bank_wr_addr,  // write address bus
+  input  wire [(DATA_W_IN_BYTES*8) - 1:0]           reg_bank_wr_data,  // write data bus
+
+  input  wire                                       ACLK             , // Clock source 
+  input  wire                                       ARESETn            // Reset source
+
+);
+
+//------------------------------------------------------------------------------
+// Declare registers
+//------------------------------------------------------------------------------
+reg [10:0] exp1=0;
+reg [1:0]  exp2=0;
+
+//------------------------------------------------------------------------------
+// In the basic bank these are completed straight away. Recall ....XX_start is
+// a registered signal.
+//------------------------------------------------------------------------------
+assign reg_bank_wr_done = reg_bank_wr_start;
+assign reg_bank_rd_done = reg_bank_rd_start;
+
+//------------------------------------------------------------------------------
+// Write logic
+//------------------------------------------------------------------------------
+always @(posedge ACLK) begin
+   if(!ARESETn) begin
+      exp1 <= 'd0; // Make these optional reset, so data is persistant.
+      exp2 <= 'd0;
+   end else begin
+      if(reg_bank_wr_start) begin
+         case (reg_bank_wr_addr[DCADDR_LOW_BIT_W-1:2])
+         0 : begin
+             exp1 <= reg_bank_wr_data[10:0];
+         end 
+         1 : begin
+             exp2 <= reg_bank_wr_data[1:0];
+         end 
+         endcase
+      end
+   end
+end
+
+//------------------------------------------------------------------------------
+// READ logic
+//------------------------------------------------------------------------------
+always @(*) begin
+//      if(reg_bank_rd_start) begin
+         reg_bank_rd_data = 'd0; // Zero the complete bus. We will set specific 
+                                 // bits in the case
+         case (reg_bank_rd_addr[DCADDR_LOW_BIT_W-1:2])
+         0 : begin
+             reg_bank_rd_data[10:0] = exp1;
+         end 
+         1 : begin
+             reg_bank_rd_data[1:0] = exp2;
+         end 
+         endcase
+//      end
+end
+
+endmodule

@@ -1,0 +1,10 @@
+    League Standings
+
+    League Name: [% name %]
+    Season     : [% season %]
+
+    Teams:
+    [% FOREACH team = teams -%]
+    [% team.name %] [% team.played -%] 
+    [% team.won %] [% team.drawn %] [% team.lost %]
+    [% END %]

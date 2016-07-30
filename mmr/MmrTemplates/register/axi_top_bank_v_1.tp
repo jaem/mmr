@@ -1,0 +1,197 @@
+[% INCLUDE MmrTemplates/commonHeaders/common_verilog_1.tp %]
+[% INCLUDE MmrTemplates/commonHeaders/common_verilog_header_1.tp %]
+module [% cfg.module %] #(
+  parameter DATA_W_IN_BYTES       = 4,
+  parameter ADDR_W_IN_BITS        = ([% topcfg.addrLowWidth %] + [% topcfg.addrHighWidth %]),
+  parameter DCADDR_LOW_BIT_W      = [% topcfg.addrLowWidth %],
+  parameter DCADDR_STROBE_MEM_SEG = [% topcfg.addrHighWidth%] 
+) (
+
+   //--------------------------------------------------------------------------
+   //  register IO section
+   //--------------------------------------------------------------------------
+[% FOREACH block IN cfg.work.insigs -%]
+
+   // Block [% block.key %]
+[% FOREACH signal IN block.value -%]
+   input  [% signal.value -%],
+[% END -%]
+[% END -%]
+[% FOREACH block IN cfg.work.outsigs -%]
+
+   // Block [% block.key %]
+[% FOREACH signal IN block.value -%]
+   output [% signal.value -%],
+[% END -%]
+[% END -%]
+
+   //--------------------------------------------------------------------------
+   //  Control strobe section
+   //--------------------------------------------------------------------------
+   input  wire [(ADDR_W_IN_BITS)-1 : 0]              S_AXI_AWADDR,      // Write channel Protection type. This signal indicates the privilege and security level of the transaction, and whether    // the transaction is a data access or an instruction access.
+   input  wire [2 : 0]                               S_AXI_AWPROT,      // Write address valid. This signal indicates that the master signaling // valid write address and control information.
+   input  wire                                       S_AXI_AWVALID,     // Write address ready. This signal indicates that the slave is ready    // to accept an address and associated control signals.
+   output wire                                       S_AXI_AWREADY,     // Write data (issued by master, acceped by Slave) 
+   
+   input  wire [(DATA_W_IN_BYTES*8) - 1:0]           S_AXI_WDATA,       // Write strobes. This signal indicates which byte lanes hold    // valid data. There is one write strobe bit for each eight    // bits of the write data bus.    
+   input  wire [DATA_W_IN_BYTES-1 : 0]               S_AXI_WSTRB,       // Write valid. This signal indicates that valid write    // data and strobes are available.
+   input  wire                                       S_AXI_WVALID,      // Write ready. This signal indicates that the slave    // can accept the write data.
+   output wire                                       S_AXI_WREADY,      // Write response. This signal indicates the status    // of the write transaction.
+   
+   output wire [1 : 0]                               S_AXI_BRESP,       // Write response valid. This signal indicates that the channel    // is signaling a valid write response.
+   output wire                                       S_AXI_BVALID,      // Response ready. This signal indicates that the master    // can accept a write response.
+   input  wire                                       S_AXI_BREADY,      // Read address (issued by master, acceped by Slave)
+   
+   input  wire [(ADDR_W_IN_BITS)-1 : 0]              S_AXI_ARADDR,      // Protection type. This signal indicates the privilege    // and security level of the transaction, and whether the    // transaction is a data access or an instruction access.
+   input  wire [2 : 0]                               S_AXI_ARPROT,      // Read address valid. This signal indicates that the channel    // is signaling valid read address and control information.
+   input  wire                                       S_AXI_ARVALID,     // Read address ready. This signal indicates that the slave is    // ready to accept an address and associated control signals.
+   output wire                                       S_AXI_ARREADY,     // Read data (issued by slave)
+   
+   output wire [(DATA_W_IN_BYTES*8) - 1:0]           S_AXI_RDATA,       // Read response. This signal indicates the status of the    // read transfer.
+   output wire [1 : 0]                               S_AXI_RRESP,       // Read valid. This signal indicates that the channel is signaling the required read data.
+   output wire                                       S_AXI_RVALID,      // Read ready. This signal indicates that the master can accept the read data and response information.
+   input  wire                                       S_AXI_RREADY,      // 
+
+   input  wire                                       ACLK,              // Clock source 
+   input  wire                                       ARESETn            // Reset source
+
+);
+
+//------------------------------------------------------------------------------
+// read/write control strobes
+//------------------------------------------------------------------------------
+wire [DCADDR_STROBE_MEM_SEG - 1:0]         bank_rd_start; // read start strobe
+wire [DCADDR_STROBE_MEM_SEG - 1:0]         bank_rd_done;  // read done  strobe
+wire [DCADDR_LOW_BIT_W - 1:0]              bank_rd_addr;  // read address bus
+reg  [(DATA_W_IN_BYTES*8) - 1:0]           bank_rd_data;  // read data bus
+wire [(ADDR_W_IN_BITS)-1:DCADDR_LOW_BIT_W] decode_rd_addr;// used external to the block to select the correct returning data
+
+wire [DCADDR_STROBE_MEM_SEG - 1:0]         bank_wr_start; // write start strobe
+wire [DCADDR_STROBE_MEM_SEG - 1:0]         bank_wr_done;  // write done  strobe
+wire [DCADDR_LOW_BIT_W - 1:0]              bank_wr_addr;  // write address bus
+wire [(DATA_W_IN_BYTES*8) - 1:0]           bank_wr_data;  // write data bus
+
+wire [(DATA_W_IN_BYTES*8) - 1:0]           bank_rd_data_bus[DCADDR_STROBE_MEM_SEG-1:0]; // read data bus
+[% myTempCounter=0 -%]
+[% FOREACH signal IN cfg.work.blks -%]
+[% IF (signal.value == 'axi4_reg_if_v') -%]
+
+//------------------------------------------------------------------------------
+// Register interface control logic. This can be swapped for the appropiate
+// protocol.
+//------------------------------------------------------------------------------
+[% cfg.name %]_[% signal.key %] #(
+  .DATA_W_IN_BYTES       (DATA_W_IN_BYTES       ),
+  .ADDR_W_IN_BITS        (ADDR_W_IN_BITS        ),
+  .DCADDR_LOW_BIT_W      (DCADDR_LOW_BIT_W      ),
+  .DCADDR_STROBE_MEM_SEG (DCADDR_STROBE_MEM_SEG )
+) [% cfg.name %]_[% signal.key %]_[% myTempCounter %]_i (
+   .S_AXI_AWADDR      (S_AXI_AWADDR  ), 
+   .S_AXI_AWPROT      (S_AXI_AWPROT  ), // Write channel Protection type. This signal indicates the privilege and security level of the transaction, and whether the transaction is a data access or an instruction access.
+   .S_AXI_AWVALID     (S_AXI_AWVALID ), // Write address valid. This signal indicates that the master signaling valid write address and control information.
+   .S_AXI_AWREADY     (S_AXI_AWREADY ), // Write address ready. This signal indicates that the slave is ready to accept an address and associated control signals.
+
+   .S_AXI_WDATA       (S_AXI_WDATA   ), // Write data (issued by master, acceped by Slave)     
+   .S_AXI_WSTRB       (S_AXI_WSTRB   ), // Write strobes. This signal indicates which byte lanes hold valid data. There is one write strobe bit for each eight bits of the write data bus.    
+   .S_AXI_WVALID      (S_AXI_WVALID  ), // Write valid. This signal indicates that valid write data and strobes are available.
+
+   .S_AXI_WREADY      (S_AXI_WREADY  ), // Write ready. This signal indicates that the slave can accept the write data.
+   .S_AXI_BRESP       (S_AXI_BRESP   ), // Write response. This signal indicates the status of the write transaction.
+   .S_AXI_BVALID      (S_AXI_BVALID  ), // Write response valid. This signal indicates that the channel is signaling a valid write response.
+   .S_AXI_BREADY      (S_AXI_BREADY  ), // Response ready. This signal indicates that the master can accept a write response.
+    
+   .S_AXI_ARADDR      (S_AXI_ARADDR  ), // Read address (issued by master, acceped by Slave)
+   .S_AXI_ARPROT      (S_AXI_ARPROT  ), // Protection type. This signal indicates the privilege and security level of the transaction, and whether the transaction is a data access or an instruction access.
+   .S_AXI_ARVALID     (S_AXI_ARVALID ), // Read address valid. This signal indicates that the channel is signaling valid read address and control information.
+   .S_AXI_ARREADY     (S_AXI_ARREADY ), // Read address ready. This signal indicates that the slave is ready to accept an address and associated control signals.
+    
+   .S_AXI_RDATA       (S_AXI_RDATA   ), // Read data (issued by slave)
+   .S_AXI_RRESP       (S_AXI_RRESP   ), // Read response. This signal indicates the status of the read transfer.
+   .S_AXI_RVALID      (S_AXI_RVALID  ), // Read valid. This signal indicates that the channel is signaling the required read data.
+   .S_AXI_RREADY      (S_AXI_RREADY  ), // Read ready. This signal indicates that the master can accept the read data and response information.
+
+   .reg_bank_rd_start (bank_rd_start ), // read start strobe
+   .reg_bank_rd_done  (bank_rd_done  ), // read done strobe
+   .reg_bank_rd_addr  (bank_rd_addr  ), // read address bus
+   .reg_bank_rd_data  (bank_rd_data  ), // read data bus
+   .decode_rd_addr    (decode_rd_addr), // Upper address bits used to select the correct read data back into
+
+   .reg_bank_wr_start (bank_wr_start ), // write start strobe
+   .reg_bank_wr_done  (bank_wr_done  ), // write done  strobe
+   .reg_bank_wr_addr  (bank_wr_addr  ), // write address bus
+   .reg_bank_wr_data  (bank_wr_data  ), // write data bus
+
+   .ACLK              (ACLK          ), // Clock source 
+   .ARESETn           (ARESETn       )  // Reset source
+
+);
+[% myTempCounter = myTempCounter + 1 -%]
+[% END -%]
+[% END -%]
+
+//------------------------------------------------------------------------------
+// Mux the read data lines back into the interface logic.
+// DCADDR_STROBE_MEM_SEG defines the number of strobes required. 
+//------------------------------------------------------------------------------
+always @(*) begin
+   case(decode_rd_addr)
+[% myTempCounter=0 -%]
+[% FOREACH signal IN cfg.work.blks -%]
+[% IF (signal.value == 'reg_sync_v' || signal.value == 'reg_sync_v') -%]
+   [% myTempCounter -%]:bank_rd_data = bank_rd_data_bus[[% myTempCounter -%]]; // DECODE FOR instance [% signal.key %] of type [% signal.value %]
+[% myTempCounter = myTempCounter + 1 -%]
+[% END -%]
+[% END -%]
+   default:bank_rd_data = bank_rd_data_bus[0];
+   endcase
+end
+[% myTempCounter=0 -%]
+[% FOREACH blk IN cfg.work.blks -%]
+[% IF (blk.value == 'reg_sync_v' || blk.value == 'reg_sync_v') -%]
+
+//------------------------------------------------------------------------------
+// Data basic register type : [% blk.key %]
+//------------------------------------------------------------------------------
+[% cfg.name %]_[% blk.key %] #(
+  .DATA_W_IN_BYTES       (DATA_W_IN_BYTES       ),
+  .ADDR_W_IN_BITS        (ADDR_W_IN_BITS        ),
+  .DCADDR_LOW_BIT_W      (DCADDR_LOW_BIT_W      )
+) [% cfg.name %]_[% blk.key %]_[% myTempCounter -%]_i (
+
+[% FOREACH block IN cfg.work.hier_insigs -%]
+[% IF (block.key == blk.key) -%]
+   // Block [% blk.key %] Inputs
+[% FOREACH signal IN block.value -%]
+   [% signal.value -%],
+[% END -%]
+[% END -%]
+[% END -%]
+
+[% FOREACH block IN cfg.work.hier_outsigs -%]
+[% IF (block.key == blk.key) -%]
+   // Block [% blk.key %] Outputs
+[% FOREACH signal IN block.value -%]
+   [% signal.value -%],
+[% END -%]
+[% END -%]
+[% END -%]
+
+   .reg_bank_rd_start (bank_rd_start[[% myTempCounter -%]]    ), // read start strobe
+   .reg_bank_rd_done  (bank_rd_done[[% myTempCounter -%]]     ), // read done  strobe
+   .reg_bank_rd_addr  (bank_rd_addr        ), // read address bus
+   .reg_bank_rd_data  (bank_rd_data_bus[[% myTempCounter -%]] ), // read data bus
+
+   .reg_bank_wr_start (bank_wr_start[[% myTempCounter -%]]    ), // write start strobe
+   .reg_bank_wr_done  (bank_wr_done[[% myTempCounter -%]]     ), // write done  strobe
+   .reg_bank_wr_addr  (bank_wr_addr        ), // write address bus
+   .reg_bank_wr_data  (bank_wr_data        ), // write data bus
+
+   .ACLK              (ACLK                ), // Clock source 
+   .ARESETn           (ARESETn             )  // Reset source
+);
+[% myTempCounter = myTempCounter + 1 -%]
+[% END -%]
+[% END -%]
+
+
+endmodule
