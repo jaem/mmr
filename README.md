@@ -8,6 +8,11 @@ file, generally JSON. The internal representation is held as a HOH in PERL. The 
 Minimal input, maximum output is our aim.
 
 Function status Table
+| Left-aligned | Center-aligned | Right-aligned |
+| :---         |     :---:      |          ---: |
+| git status   | git status     | git status    |
+| git diff     | git diff       | git diff      |
+
 
 |  Function              | Status | Comment                                                  |  
 | Templates              |        |                                                          |  
