@@ -9,7 +9,7 @@ Minimal input, maximum output is our aim.
 
 ## Function status Table
 
-|               |           |  Function              | Status | Comment                                                  |
+| Head          | SubHead   |  Function              | Status | Comment                                                  |
 |---------------|-----------|------------------------|--------|----------------------------------------------------------|
 | Templates     |           |                        |        |                                                          |
 |               |           |                        |        |                                                          |
@@ -41,11 +41,11 @@ Minimal input, maximum output is our aim.
 Why not XML? Its humanly unreadable after a point, you can argue this with JSON, but less so. MMR is aimed at 
 being able to script register flows or quickly human hack.
 
-Why not use SPIRIT? You can generate a SPIRIT compatable output if you like, but again, its a pain to input.
+Why not use SPIRIT? You can generate a SPIRIT compatable output if you like, but again, not super readable.
 
 ## History
 
-Generating register code is someting I hate. But I want registers to be meaningful and easy to augment.
+Generating register code is someting I dislike. But I want registers to be meaningful and easy to augment.
 So after working at a few different companies, writing this a few differnt times, here is a free core
 of how I like to work and a flexible approach to creating HDL that you can use in any project.
 
@@ -53,13 +53,13 @@ The tool is written in PERL, maybe unfashonable at present, but guaranteed to be
 
 ## CPAN Dependicies
 
-sudo cpan install Template
-sudo cpan install Module::PluginFinder
-sudo cpan install JSON::Parse
+sudo cpan install Template  
+sudo cpan install Module::PluginFinder  
+sudo cpan install JSON::Parse  
 
 ## Usage
 
-Use a build in test format. Generally these are for development.
+Use a build in test format. Generally these are for development.  
 
 ./mmr.pl -t ./templates/d./mmr.pl -format Draft_005 -out ./../work/mmrOutputDir_003 -write ./../exampleOut.json
 
