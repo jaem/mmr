@@ -9,38 +9,38 @@ Minimal input, maximum output is our aim.
 
 Function status Table
 
-|--------------------------------------------------------------------------------------------|
-|  Function              | Status | Comment                                                  |
-|------------------------|--------|----------------------------------------------------------|
-| Templates              |--------|----------------------------------------------------------|
-|                        |        |                                                          |
-|  Verilog               |--------|----------------------------------------------------------|
-|   Simple R/W           |   Y    | Basic RW register bank                                   |
-|   AXI4 Interface       |   Y    | AXI4 interface to Banks                                  |
-|   BankTopLevel         |   Y    | Bank stitching code                                      |
-|   Syncroniser          |   Y    | n element single bit syncroniser.                        |
-|   BasicTestBench       |   Y    | Simple bench to eyeball R/W.                             |
-|   AdvTestBench         |   N    | Bench that allows indepth test.SynthesiseableForHwTest   |
-|                        |        |                                                          |
-|  Other                 |--------|----------------------------------------------------------|
-|   CSV table            | N 16/9 | Use for basic documentation                              |
-|   .h MemoryMap         | N 16/9 |                                                          |
-|   .json MemoryMap      |   N    |                                                          |
-|   SpirtDesc            |   N    |                                                          |
-|                        |        |                                                          |
--------------------------|--------|----------------------------------------------------------|
-| RegisterTypes          |--------|----------------------------------------------------------|
-|  BuiltInPulseRegs      |   N    | Allow single or multi clock pulses                       |
-|  XClockDomain          |   N    | Syncroniser elements inserted in line                    |
-|  ClearOnR/W            |   N    | Clear on read/write                                      |
-|                        |        |                                                          |
--------------------------|--------|----------------------------------------------------------|
-| GUI                    |--------|----------------------------------------------------------|
-|  (mmr_rc)RegCature     |   N    | NodeJS GUI allowing fast register capture                |
-|  (mmr_rq)RegQuery      |   N    | NodeJS GUI allowing regexp reg map query                 |
-|  (mmr_rrw)RegReadWrite |   N    | Extension to RRW allow R/W via serial/TCL/BLE etc.       |
-|                        |        |                                                          |
-|--------------------------------------------------------------------------------------------|
+|--------------------------------------------------------------------------------------------|  
+|  Function              | Status | Comment                                                  |  
+|------------------------|--------|----------------------------------------------------------|  
+| Templates              |--------|----------------------------------------------------------|  
+|                        |        |                                                          |  
+|  Verilog               |--------|----------------------------------------------------------|  
+|   Simple R/W           |   Y    | Basic RW register bank                                   |  
+|   AXI4 Interface       |   Y    | AXI4 interface to Banks                                  |  
+|   BankTopLevel         |   Y    | Bank stitching code                                      |  
+|   Syncroniser          |   Y    | n element single bit syncroniser.                        |  
+|   BasicTestBench       |   Y    | Simple bench to eyeball R/W.                             |  
+|   AdvTestBench         |   N    | Bench that allows indepth test.SynthesiseableForHwTest   |  
+|                        |        |                                                          |  
+|  Other                 |--------|----------------------------------------------------------|  
+|   CSV table            | N 16/9 | Use for basic documentation                              |  
+|   .h MemoryMap         | N 16/9 |                                                          |  
+|   .json MemoryMap      |   N    |                                                          |  
+|   SpirtDesc            |   N    |                                                          |  
+|                        |        |                                                          |  
+-------------------------|--------|----------------------------------------------------------|  
+| RegisterTypes          |--------|----------------------------------------------------------|  
+|  BuiltInPulseRegs      |   N    | Allow single or multi clock pulses                       |  
+|  XClockDomain          |   N    | Syncroniser elements inserted in line                    |  
+|  ClearOnR/W            |   N    | Clear on read/write                                      |  
+|                        |        |                                                          |  
+-------------------------|--------|----------------------------------------------------------|  
+| GUI                    |--------|----------------------------------------------------------|  
+|  (mmr_rc)RegCature     |   N    | NodeJS GUI allowing fast register capture                |  
+|  (mmr_rq)RegQuery      |   N    | NodeJS GUI allowing regexp reg map query                 |  
+|  (mmr_rrw)RegReadWrite |   N    | Extension to RRW allow R/W via serial/TCL/BLE etc.       |  
+|                        |        |                                                          |  
+|--------------------------------------------------------------------------------------------|  
 
 Why not XML? Its humanly unreadable after a point, you can argue this with JSON, but less so. MMR is aimed at 
 being able to script register flows or quickly human hack.
