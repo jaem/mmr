@@ -35,16 +35,10 @@ if ( !-e $configHash{outDir} ) {
   make_path( $configHash{outDir} );
 }
 
-#&performExportOnDir( "../", "commonModules",     $configHash{outDir}, 0 );
-#&performExportOnDir( "../", "callScripts",       $configHash{outDir}, 1 );
-#&performExportOnDir( "../", "wwwDataProcessing", $configHash{outDir}, 1 );
 system("cp -R " . "MmrPm " . $configHash{outDir} . "/.");
 system("cp -r " . "MmrTemplates " . $configHash{outDir} . "/.");
 system("cp -r " . "mmr.pl " . $configHash{outDir} . "/.");
 system("cp -r " . "releaseMmr.pl " . $configHash{outDir} . "/.");
-#system("rm " . $configHash{outDir} . "/wwwDataProcessing/*.csv");
-#system("rm " . $configHash{outDir} . "/wwwDataProcessing/*.sqlite");
-#system("rm " . $configHash{outDir} . "/wwwDataProcessing/*.png");
 
 &executeCommand( $configHash{exeCmds}, "find $configHash{outDir} | xargs cat > numberOfLinesOfCode;wc -l numberOfLinesOfCode;rm numberOfLinesOfCode" );
 &executeCommand( $configHash{exeCmds}, "ls -la $configHash{outDir}" );
