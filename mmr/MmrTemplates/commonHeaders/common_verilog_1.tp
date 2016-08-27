@@ -2,7 +2,7 @@
 # Load modules we use in the template here and store using stash so we 
 # can use later on as objects accessing their functions.
 use MmrPm::Register::Hdl::Verilog::Assignments;
-$stash->set('sub.ass', MmrPm::Register::Hdl::Verilog::Assignments->new);
+$stash->set('sub.show', MmrPm::Register::Hdl::Verilog::Assignments->new);
 # Thinking about depricating the above idea. All signals generated in PERL and
 # passed in config instead, seperating logic and template. The template has
 # some flow control logic, buts thats it

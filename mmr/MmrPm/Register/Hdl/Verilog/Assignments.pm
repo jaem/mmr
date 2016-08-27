@@ -29,24 +29,10 @@ our $VERSION = 0.01;
 #
 #------------------------------------------------------------------------
 
-sub goat {
-  my $self = shift;
-  return 'goatFrom';
-}
-
 sub show {
   my ($self, $dataRef) = @_;
   return Dumper($dataRef);
 }
-
-sub add_register {
-  my ($self, $cfgRef, $dataRef, $direction) = @_;
-  my $string = "";
-  
-  print Dumper $dataRef;
-  return $string;
-}
-
 
 1;
 
