@@ -72,8 +72,6 @@ sub runMmr {
     my $tmp = JSON->new->pretty->encode( $mmr->{data}{ep} );
     $tmp =~ s/\n[\s]{15}/ /g;
     $tmp =~ s/\n[\s]{12}\}/\} /g;
-
-    #    print $tmp;
     $self->writeToFile( $mmr->{cfg}{writecfg}, $tmp );
   }
 
@@ -88,7 +86,7 @@ sub runMmr {
 
   # This builds a hash reference tree for procesing that contains a
   # reference to the top level config and block configs. This is a list
-  # that allow us to call teh same subroutine for each, even if the config
+  # that allow us to call the same subroutine for each, even if the config
   # is nested, which is valid.
   my $forProcessing = examineHashForBlockConfigs( $mmr->{data}{ep}, $tp );
   print Dumper($forProcessing) if ( $mmr->{cfg}{dumpcfg} );

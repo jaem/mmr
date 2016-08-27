@@ -141,16 +141,16 @@ always @(posedge ACLK) begin
     S_AXI_AWREADY      <= 1'd0; // Should only be high for a cycle
     S_AXI_WREADY       <= 1'd0; // Should only be high for a cycle
     S_AXI_BVALID       <= S_AXI_BVALID; // This signal may need to be held
-      start_write        <= 1'd0; // Single pulse signal
+    start_write        <= 1'd0; // Single pulse signal
     // Read
     S_AXI_ARREADY      <= 1'd0; // Should only be high for a cycle
-      start_read         <= 1'd0; // Signal pulse signal
+    start_read         <= 1'd0; // Signal pulse signal
 
     case(access_state)
     // In idle we can accept reads or writes, but not both at the same time
     // for this controller. We will proritise reads over writes.
     access_state_idle : begin
-        S_AXI_RVALID <= 1'd0; // Low until data is Valid
+      S_AXI_RVALID <= 1'd0; // Low until data is Valid
       if(S_AXI_ARVALID) begin
           S_AXI_ARREADY    <= 1'd1;                      // Assert AXI strobe
         access_state     <= access_state_rd_start;     // Read state sequence
@@ -159,14 +159,14 @@ always @(posedge ACLK) begin
       end else begin
         if(S_AXI_AWVALID & S_AXI_WVALID) begin
           // we can wait for both signals to be asserted before starting a write. Simplifies logic.
-                    // the slave can wait for AWVALID or WVALID, or both before asserting AWREADY
-                    // the slave can wait for AWVALID or WVALID, or both, before asserting WREADY
+          // the slave can wait for AWVALID or WVALID, or both before asserting AWREADY
+          // the slave can wait for AWVALID or WVALID, or both, before asserting WREADY
           access_state     <= access_state_wr_start; // Write state sequence
-            wr_addr          <= S_AXI_AWADDR;          // Lock the address & data for internal use
-            reg_bank_wr_data <= S_AXI_WDATA;
-            S_AXI_AWREADY    <= 1'd1;                  // Assert ready strobes
-            S_AXI_WREADY     <= 1'd1;
-            start_write      <= 1'd1;                  // Start the write internally
+          wr_addr          <= S_AXI_AWADDR;          // Lock the address & data for internal use
+          reg_bank_wr_data <= S_AXI_WDATA;
+          S_AXI_AWREADY    <= 1'd1;                  // Assert ready strobes
+          S_AXI_WREADY     <= 1'd1;
+          start_write      <= 1'd1;                  // Start the write internally
         end
       end
     end
@@ -175,48 +175,18 @@ always @(posedge ACLK) begin
     access_state_rd_start : begin
       S_AXI_ARREADY <= 1'd0; // was asserted on leaving idle, clear Address is locked
       if (|reg_bank_rd_done | out_of_range_read) begin
-          // Internal bank access is complete
-          S_AXI_RVALID <= 1'd1;
-          access_state <= access_state_rd_wait_ready;
-
-//          if (S_AXI_RREADY) begin
-//             // AXI access is complete, we are finished
-//               access_state <= access_state_idle;
-//          end else begin
-//             // AXI access is not complete, wait for master indication
-//                   access_state <= access_state_rd_wait_ready;
-//                end
+        // Internal bank access is complete
+        S_AXI_RVALID <= 1'd1;
+        access_state <= access_state_rd_wait_ready;
       end else begin
-//          if (S_AXI_RREADY & S_AXI_RVALID) begin
-//             `ifdef DEBUG_JJREG
-//               $display("ERROR CASE: no read completion");
-//               `endif
-//             access_state <= access_state_idle;
-//             S_AXI_RVALID <= 1'd0;
-//          end else begin
-           access_state <= access_state_rd_wait_complete;
-//          end
+         access_state <= access_state_rd_wait_complete;
       end
     end
 
     access_state_rd_wait_complete : begin
             if (|reg_bank_rd_done | out_of_range_read) begin
                 S_AXI_RVALID <= 1'd1;
-//                if (S_AXI_RREADY) begin
-//                   access_state <= access_state_idle;
-//                end else begin
                    access_state <= access_state_rd_wait_ready;
-//                end
-//            end else begin
-//          if (S_AXI_RREADY & S_AXI_RVALID) begin
-//            `ifdef DEBUG_JJREG
-//                  $display("ERROR CASE: no read completion");
-//                  `endif
-//                   access_state <= access_state_idle;
-//                   S_AXI_RVALID <= 1'd0;
-//                end else begin
-//                   access_state <= access_state_rd_wait_complete;
-//                end
             end
         end
 
@@ -229,53 +199,30 @@ always @(posedge ACLK) begin
 
         // WRITE
     access_state_wr_start : begin
-            S_AXI_AWREADY <= 1'd0;
-            S_AXI_WREADY  <= 1'd0;
-            if (|reg_bank_wr_done | out_of_range_write) begin
-                S_AXI_BVALID <= 1'd1;
-//                if (S_AXI_BREADY)
-//                   access_state <= access_state_idle;
-//                else
-                   access_state <= access_state_wr_wait_ready;
-            end else begin
-//                if (S_AXI_BREADY & S_AXI_BVALID) begin
-//                 `ifdef DEBUG_JJREG
-//                     $display("ERROR CASE: no read completion");
-//                     `endif
-//                      access_state <= access_state_idle;
-//                      S_AXI_BVALID <= 1'd0;
-//                end else begin
-                   access_state <= access_state_wr_wait_complete;
-//                end
-            end
-        end
+      S_AXI_AWREADY <= 1'd0;
+      S_AXI_WREADY  <= 1'd0;
+      if (|reg_bank_wr_done | out_of_range_write) begin
+          S_AXI_BVALID <= 1'd1;
+        access_state <= access_state_wr_wait_ready;
+      end else begin
+        access_state <= access_state_wr_wait_complete;
+      end
+    end
 
         access_state_wr_wait_complete : begin
-            if (|reg_bank_wr_done | out_of_range_write) begin
-                S_AXI_BVALID <= 1'd1;
-//                if (S_AXI_BREADY) begin
-//                   access_state <= access_state_idle;
-//                end else begin
-                   access_state <= access_state_wr_wait_ready;
-//                end
-            end else begin
-//                if (S_AXI_BREADY & S_AXI_BVALID) begin
-//             `ifdef DEBUG_JJREG
-//                   $display("ERROR CASE: no read completion");
-//                   `endif
-//                   access_state <= access_state_idle;
-//                   S_AXI_BVALID <= 1'd0;
-//                end else begin
-                   access_state <= access_state_wr_wait_complete;
-//                end
-            end
+          if (|reg_bank_wr_done | out_of_range_write) begin
+              S_AXI_BVALID <= 1'd1;
+            access_state <= access_state_wr_wait_ready;
+          end else begin
+            access_state <= access_state_wr_wait_complete;
+          end
         end
 
         access_state_wr_wait_ready : begin
-           if (S_AXI_BREADY) begin
+          if (S_AXI_BREADY) begin
               S_AXI_BVALID <= 1'd0;
-              access_state <= access_state_idle;
-           end
+            access_state <= access_state_idle;
+          end
         end
 
     default : access_state <= access_state;

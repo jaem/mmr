@@ -21,15 +21,16 @@ package MmrPm::Processors::mmr_template_processor_v1;
 use Moose;
 use Template;
 
-extends 'MmrPm::Processors::HouseKeeping::houseKeeping_v1',     # Data dumper and File IO
-  'MmrPm::Processors::BlockProcessors::HdlVerilogStringGen',    # Register string logic
-  'MmrPm::Processors::BlockProcessors::RegAccessDecisions';     # decisions for actions on register type
+extends 'MmrPm::Processors::HouseKeeping::houseKeeping_v1',           # Data dumper and File IO
+  'MmrPm::Processors::BlockProcessors::HdlVerilogStringGen',          # Register string logic
+  'MmrPm::Processors::BlockProcessors::CheckRegKeyValuesAreValid',    # Checks for correct register key population
+  'MmrPm::Processors::BlockProcessors::RegAccessDecisions';           # decisions for actions on register type
 
-has 'controller' => ( is => 'rw', );                            # A reference to the main contoller. Could be removed!
+has 'controller' => ( is => 'rw', );                                  # A reference to the main contoller. Could be removed!
 
 sub checkBlockConfiguration {
   my ( $self, $controllerRef, $dataRef, $topName ) = @_;
-  $self->controller($controllerRef);                            # Not sure we need this reference!
+  $self->controller($controllerRef);                                  # Not sure we need this reference!
 
   # gen counts of inputs & outputs
   # cal signal widths
@@ -58,6 +59,11 @@ sub checkBlockConfiguration {
         # To save the constant dereferencing, create these alias's
         my $sigRef    = ${ $dataRef->{sb}{$block} }->{reg}{$signal};
         my $blkCfgRef = ${ $dataRef->{sb}{$block} }->{cfg};
+
+        $self->checkAllSignalKeysExist( $signal, $sigRef, $block );
+
+        #        $sigRef->{enable}=1 if (! exists $sigRef->{enable});
+        #        $sigRef->{clk}='' if (! exists $sigRef->{clk});
 
         # Initial counts
         $blkCfgRef->{work}{counts}{input}  = 0 if ( !exists $blkCfgRef->{work}{counts}{input} );

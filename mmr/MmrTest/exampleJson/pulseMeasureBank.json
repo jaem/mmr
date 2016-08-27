@@ -22,12 +22,12 @@
          },
          "reg" : {
             "clk_subsample"    : { "width" : 32, "enable" : 1, "clk" : "", "def" : 0, "type" : "rw", "doc" : "", "addr" : 12, "offset" : 0} ,
-            "enable"           : { "width" : 1, "enable" : 1, "clk" : "", "def" : 1, "type" : "rw", "doc" : "", "addr" : 0, "offset" : 0} ,
-            "ready_to_read"    : { "width" : 1, "enable" : 1, "clk" : "", "def" : 0, "type" : "ro", "doc" : "", "addr" : 24, "offset" : 0} ,
+            "enable"           : { "width" : 1,  "enable" : 1, "clk" : "", "def" : 1, "type" : "rw", "doc" : "", "addr" : 0, "offset" : 0} ,
+            "ready_to_read"    : { "width" : 1,  "enable" : 1, "clk" : "", "def" : 0, "type" : "ro", "doc" : "", "addr" : 24, "offset" : 0} ,
             "pulse_per_second" : { "width" : 16, "enable" : 1, "clk" : "", "def" : 0, "type" : "ro", "doc" : "", "addr" : 16, "offset" : 0} ,
             "accum_low_period" : { "width" : 32, "enable" : 1, "clk" : "", "def" : 0, "type" : "ro", "doc" : "", "addr" : 20, "offset" : 0} ,
             "clk_freq"         : { "width" : 32, "enable" : 1, "clk" : "", "def" : 100000000, "type" : "rw", "doc" : "", "addr" : 8, "offset" : 0} ,
-            "use_one_pps_in"   : { "width" : 1, "enable" : 1, "clk" : "", "def" : 0, "type" : "rw", "doc" : "", "addr" : 4, "offset" : 0} 
+            "use_one_pps_in"   : { "width" : 1,  "enable" : 1, "clk" : "", "def" : 0, "type" : "rw", "doc" : "", "addr" : 4, "offset" : 0} 
          }
       },
       "0" : {
@@ -49,7 +49,7 @@
             "type" : "reg_sync_v"
          },
          "reg" : {
-            "clk_subsample"    : { "width" : 32, "def" : 0, "type" : "rw", "doc" : "", "addr" : 12, "offset" : 0} ,
+            "clk_subsample"    : { "width" : 1,  "def" : 0, "type" : "rw", "doc" : "", "addr" : 12, "offset" : 0} ,
             "enable"           : { "width" : 1,  "def" : 1, "type" : "rw", "doc" : "", "addr" : 0, "offset" : 0} ,
             "ready_to_read"    : { "width" : 1,  "def" : 0, "type" : "ro", "doc" : "", "addr" : 24, "offset" : 0} ,
             "pulse_per_second" : { "width" : 16, "def" : 0, "type" : "ro", "doc" : "", "addr" : 16, "offset" : 0} ,

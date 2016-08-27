@@ -8,17 +8,17 @@ file, generally JSON. The internal representation is held as a HOH in PERL. The 
 Minimal input, maximum outout is our aim.
 
 Why not XML? Its humanly unreadable after a point, you can argue this with JSON, but less so. MMR is aimed at 
-being able to script register flows or quickly human hack. XML suck for this.
+being able to script register flows or quickly human hack. XML sucks for this.
 
 Why not use SPIRIT? You can generate a SPIRIT compatable output if you like, but again, its a pain to input.
 
 History
 
 Generating register code is someting I hate. But I want registers to be meaningful and easy to augment.
-So after working at a few different companies, wrting this a few differnt times, here is a free core
+So after working at a few different companies, writing this a few differnt times, here is a free core
 of how I like to work and a flexible approach to creating HDL that you can use in any project.
 
-The tool is written in PERL, maybe unfashonable at present, but guarneteed to be used in all major HDL
+The tool is written in PERL, maybe unfashonable at present, but guaranteed to be used in all major HDL
 tech companies.
 
 CPAN Dependicies

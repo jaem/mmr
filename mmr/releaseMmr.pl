@@ -4,8 +4,7 @@
 use Getopt::Long;
 use File::Path qw(make_path);
 use DateTime;
-
-#use Expect;
+use FindBin qw($Bin);
 
 my %configHash;
 initialiseConfigHash( \%configHash );
@@ -21,7 +20,7 @@ GetOptions(
 sub initialiseConfigHash {
   my ($configHash) = @_;
   $$configHash{keyName} = "mmrRelease_";
-  $$configHash{outDir}  = "./";
+  $$configHash{outDir}  = "${Bin}/../../../mmrRelease";
   $$configHash{diffDir} = "";
   $$configHash{exeCmds} = 0;
   $$configHash{help}    = 0;
