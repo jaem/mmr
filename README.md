@@ -46,7 +46,7 @@ Why not use SPIRIT? You can generate a SPIRIT compatable output if you like, but
 ## History
 
 Generating register code is someting I dislike. But I want registers to be meaningful and easy to augment.
-So after working at a few different companies, writing this a few differnt times, here is a free core
+So after working at a few different companies, writing this a few different times, here is a free core
 of how I like to work and a flexible approach to creating HDL that you can use in any project.
 
 The tool is written in PERL, maybe unfashonable at present, but guaranteed to be used in all major HDL tech companies.
