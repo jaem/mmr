@@ -41,7 +41,7 @@ Minimal input, maximum output is our aim.
 Why not XML? Its humanly unreadable after a point, you can argue this with JSON, but less so. MMR is aimed at 
 being able to script register flows or quickly human hack.
 
-Why not use SPIRIT? You can generate a SPIRIT compatable output if you like, but again, not super readable.
+Why not use SPIRIT? You can generate a SPIRIT compatable output if/when required.
 
 ## History
 
@@ -63,5 +63,8 @@ Use a build in test format. Generally these are for development.
 
 ./mmr.pl -t ./templates/d./mmr.pl -format Draft_005 -out ./../work/mmrOutputDir_003 -write ./../exampleOut.json
 
+General
+
+./mmr.pl -json ./MmrTest/exampleJson/pulseMeasureBank.json
 
 
