@@ -75,8 +75,7 @@ module tb_top();
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-//jjreg_top_ctrl  #(
-example  #(
+pc_ctrl  #(
 	.DATA_W_IN_BYTES       (DATA_W_IN_BYTES       ),
 	.ADDR_W_IN_BITS        (ADDR_W_IN_BITS        ),
 	.DCADDR_LOW_BIT_W      (DCADDR_LOW_BIT_W      ),
