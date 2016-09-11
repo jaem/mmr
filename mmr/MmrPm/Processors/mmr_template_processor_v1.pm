@@ -199,7 +199,7 @@ sub CreateBlockTypeReferenceForEachMaster {
 
 sub processBlock {
   my ( $self, $name, $blockData, $topData, $cfgData ) = @_;
-  printf( "Processing block %-30s of type %s\n", $name, $$blockData->{cfg}{type} );
+  printf( "Processing block %-20s of type %-20s...", $name, $$blockData->{cfg}{type} );
 
   $self->dumpData( $$topData->{cfg} ) if ( $cfgData->{dumpcfg} );
   $self->dumpData($blockData) if ( $cfgData->{dumpcfg} );
