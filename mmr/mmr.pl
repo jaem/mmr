@@ -45,22 +45,22 @@ sub processIoArgs {
                                            #
   my $argcnt = @ARGV;
   GetOptions(
-    "template=s" => \$mmr{cfg}{template},    #
-    "pversion=s" => \$mmr{cfg}{pversion},    #
-    "format=s"   => \$mmr{cfg}{format},      #
-    "json=s"     => \$mmr{cfg}{json},        #
-    "writecfg=s" => \$mmr{cfg}{writecfg},    #
-    "outdir=s"   => \$mmr{cfg}{outdir},      #
-    "dumpcfg"    => \$mmr{cfg}{dumpcfg},     #
-    "help"       => \$mmr{cfg}{help}         #
+    "template=s" => \$mmr{cfg}{template},  #
+    "pversion=s" => \$mmr{cfg}{pversion},  #
+    "format=s"   => \$mmr{cfg}{format},    #
+    "json=s"     => \$mmr{cfg}{json},      #
+    "writecfg=s" => \$mmr{cfg}{writecfg},  #
+    "outdir=s"   => \$mmr{cfg}{outdir},    #
+    "dumpcfg"    => \$mmr{cfg}{dumpcfg},   #
+    "help"       => \$mmr{cfg}{help}       #
   ) or die("Error in command line arguments\n");
   #
   showHelp() if ( $mmr{cfg}{help} or ( $argcnt == 0 ) );
   #
   # tweaks
   #
-  $mmr{cfg}{outdir} =~ s/\/$//;                         # remove trailing slash
-  return \%mmr;                                         # Return a reference to this hash.
+  $mmr{cfg}{outdir} =~ s/\/$//;            # remove trailing slash
+  return \%mmr;                            # Return a reference to this hash.
 }
 
 sub showHelp {
