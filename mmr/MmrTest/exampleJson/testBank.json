@@ -1,0 +1,39 @@
+{
+   "cfg" : {
+      "enable" : 1,
+      "version" : "1",
+      "name" : "test_bank",
+      "resetIsSync" : 1,
+      "addrHighWidth" : 2,
+      "addrLowWidth" : 8,
+      "resetActiveLow" : 1,
+      "type" : "axi_top_bank_v",
+      "tag" : "_a"
+   },
+   "blocks" : {
+      "1" : {
+         "cfg" : {
+            "decode" : 0,
+            "enable" : 1,
+            "version" : 1,
+            "name" : "t0",
+            "tag" : "",
+            "type" : "reg_sync_v"
+         },
+         "reg" : {
+            "clk_subsample"    : { "width" : 32, "enable" : 1, "clk" : "", "def" : 0, "type" : "rw", "doc" : "", "addr" : 12, "offset" : 0} ,
+            "enable"           : { "width" : 1,  "enable" : 1, "clk" : "", "def" : 1, "type" : "rw", "doc" : "", "addr" : 0,  "offset" : 0} 
+         }
+      },
+      "0" : {
+         "cfg" : {
+            "enable" : 1,
+            "version" : 1,
+            "name" : "axi4_reg_if",
+            "tag" : "",
+            "type" : "axi4_reg_if_v"
+         }
+      }
+   },
+   "deps" : {}
+}
