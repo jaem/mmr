@@ -2,9 +2,10 @@
 
 use strict;
 use warnings;
+use FindBin qw($Bin);
+use lib "$Bin";
 use Getopt::Long;
 use MmrPm::controller;
-use FindBin qw($Bin);
 
 #------------------------------------------------------------------------
 # This call returns a hash reference. All further varibles are stored to
@@ -35,6 +36,8 @@ sub processIoArgs {
   $mmr{cfg}{writecfg} = '';                # Write out the config to this location.
   $mmr{cfg}{outdir}   = '../../mmrOut';    # Base dir for generated output
   $mmr{cfg}{dumpcfg}  = 0;                 # Display config to screen. Generally DEBUG of input JSON
+  $mmr{cfg}{debug}    = "NOMATCH";         # Debug, show data structure
+  $mmr{cfg}{funky}    = 0;                 # Display config to screen. Generally DEBUG of input JSON
                                            #
                                            # Useful
                                            #
@@ -45,17 +48,19 @@ sub processIoArgs {
                                            #
   my $argcnt = @ARGV;
   GetOptions(
+    "funky"      => \$mmr{cfg}{funky},     #
     "template=s" => \$mmr{cfg}{template},  #
     "pversion=s" => \$mmr{cfg}{pversion},  #
     "format=s"   => \$mmr{cfg}{format},    #
-    "json=s"     => \$mmr{cfg}{json},      #
+    "input=s"    => \$mmr{cfg}{json},      #
     "writecfg=s" => \$mmr{cfg}{writecfg},  #
     "outdir=s"   => \$mmr{cfg}{outdir},    #
-    "dumpcfg"    => \$mmr{cfg}{dumpcfg},   #
+    "debug=s"    => \$mmr{cfg}{debug},     #
     "help"       => \$mmr{cfg}{help}       #
   ) or die("Error in command line arguments\n");
   #
   showHelp() if ( $mmr{cfg}{help} or ( $argcnt == 0 ) );
+  funky(\%mmr) if ( $mmr{cfg}{funky} );
   #
   # tweaks
   #
@@ -63,19 +68,29 @@ sub processIoArgs {
   return \%mmr;                            # Return a reference to this hash.
 }
 
+sub funky {
+  my $mmr = shift;
+  # Build in test mode
+  $mmr->{cfg}{json} = "$mmr->{cfg}{exepath}/MmrTest/exampleJson/pulseMeasureBank.json";
+  $mmr->{cfg}{writecfg} = "funky.json";
+}
+
 sub showHelp {
   my $helpTxt = "
   mmr : Make Me Registers! (and all the useful bits that go with that!!!)
 
-  -json <string>       e.g. ../../xxxx.json  // JSON file with register description
+  -format <string>     e.g. Draft_005        // Built in test format, HASH constructed in subroutine. Developer only
+
+  -input <string>      e.g. ../../xxxx.json  // JSON|YAML file with register description
   -writecfg <fileName> e.g. ./xxx.json       // Write config back to a json file
   -outdir <dirPath>    e.g. ../../xxxx       // Generate output in this directory
-  
-  -format <string>     e.g. Draft_005        // Built in test formats
-  -dumpcfg                                   // Dump the internal hash at multiple build points (DEBUG)
+  -debug <regexp>      e.g. pre              // Dump the incoming config as read, pre any checking, fill in
+                            post             // Dump the config after config has been check and default filled
+                            <blockName>cfg   // Dump the config hash for the template being run
+                            <blockname>data  // Dump the data hash for the template being run
   
                                              // Build example registers
-  ./mmr.pl -json ./MmrTest/exampleJson/pulseMeasureBank.json
+  ./mmr.pl -input ./MmrTest/exampleJson/pulseMeasureBank.json
   
                                              // Print help text
   ./mmr.pl

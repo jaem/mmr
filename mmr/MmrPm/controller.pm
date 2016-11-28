@@ -25,6 +25,8 @@ use Moose;
 use Module::PluginFinder;
 use Data::Dumper;
 use JSON;
+use YAML::XS qw'Dump Load';
+use Encode qw(decode encode);
 
 extends 'MmrPm::Processors::HouseKeeping::houseKeeping_v1';
 
@@ -48,16 +50,20 @@ sub runMmr {
       while ( readdir $dh ) {
         my $temp = $_;
         if ( lc($temp) =~ m/.*\.json$/ ) {
-          print ("$_\n");
-#          $mmr->{data}{ep} = JSON->new->pretty->decode( $self->readFileContents("$mmr->{cfg}{json}/$_") );
+          print("$_\n");
+
+          #          $mmr->{data}{ep} = JSON->new->pretty->decode( $self->readFileContents("$mmr->{cfg}{json}/$_") );
         }
       }
       closedir $dh;
     } else {
-
       # Process single JSON file
       #      my $fileContent = $self->readFromFile( $mmr->{cfg}{json} );
-      $mmr->{data}{ep} = JSON->new->pretty->decode( $self->readFileContents( $mmr->{cfg}{json} ) );
+      if ( $mmr->{cfg}{json} =~ m/\.(?:yml|yaml)/ ) {
+        $mmr->{data}{ep} = Load( $self->readFileContents( $mmr->{cfg}{json} ) );
+      } else {
+        $mmr->{data}{ep} = JSON->new->pretty->decode( $self->readFileContents( $mmr->{cfg}{json} ) );
+      }
     }
   } else {
 
@@ -73,6 +79,19 @@ sub runMmr {
     $tmp =~ s/\n[\s]{15}/ /g;
     $tmp =~ s/\n[\s]{12}\}/\} /g;
     $self->writeToFile( $mmr->{cfg}{writecfg}, $tmp );
+#    print Dump($tmp);
+    my $str = Dump( $mmr->{data}{ep} );
+    $mmr->{cfg}{writecfg} =~ s/json/yaml/;
+    $self->writeToFile( $mmr->{cfg}{writecfg}, $str );
+
+    #    $str =~ s/\\n/\n/g;
+    #    $str =~ s/\\"/"/g;
+    #    $str =~ s/--- /---\n/g;
+    #    $str =~ s/}\n"$//g;
+    #    $str =~ s/---\n"{//g;
+    #    print $str;
+    #my $data = Load($str);
+    #print Dumper $data;
   }
 
   #------------------------------------------------------------------------
@@ -89,7 +108,7 @@ sub runMmr {
   # that allow us to call the same subroutine for each, even if the config
   # is nested, which is valid.
   my $forProcessing = examineHashForBlockConfigs( $mmr->{data}{ep}, $tp );
-  print Dumper($forProcessing) if ( $mmr->{cfg}{dumpcfg} );
+  print Dumper($forProcessing) if ( "pre" =~ m/$mmr->{cfg}{debug}/ );
 
   # Get the top level name. Turn this into a sub. We use this lots
   my $topName = "ERROR";
@@ -100,6 +119,7 @@ sub runMmr {
 
   # add all calculated fields here.
   $tp->checkBlockConfiguration( $self, $forProcessing, $topName );
+  print Dumper($forProcessing) if ( "post" =~ m/$mmr->{cfg}{debug}/ );
 
   # generate all string for template inslusion
   $tp->generateBlockTemplateInserts( $forProcessing, $topName );

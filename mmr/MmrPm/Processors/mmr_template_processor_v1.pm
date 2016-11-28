@@ -201,14 +201,14 @@ sub processBlock {
   my ( $self, $name, $blockData, $topData, $cfgData ) = @_;
   printf( "Processing block %-20s of type %-20s...", $name, $$blockData->{cfg}{type} );
 
-  $self->dumpData( $$topData->{cfg} ) if ( $cfgData->{dumpcfg} );
-  $self->dumpData($blockData) if ( $cfgData->{dumpcfg} );
+  $self->dumpData( $$topData->{cfg} ) if ( "${name}cfg" =~ m/$cfgData->{debug}/ );
+  $self->dumpData($blockData)         if ( "${name}cfg" =~ m/$cfgData->{debug}/ );
 
   my $template = $self->getTemplate( $name, $blockData, $cfgData );
 
   $$blockData->{topcfg} = $$topData->{cfg};    # add a reference to the top cfg data
 
-  my $output = $self->processTemplate( $template, $blockData );
+  my $output = $self->processTemplate( $template, $blockData, $cfgData->{exepath} );
 
   my ( $outFilePath, $outFileName ) = $self->getOutFileName( $name, $blockData, $topData, $cfgData );
   $self->writeResultToFile( $outFilePath, $outFileName, $output );
@@ -226,7 +226,7 @@ sub getTemplate {
   my $template = "$$blockData->{cfg}{type}_$$blockData->{cfg}{version}.tp";
 
   # Add a multiple dir search here
-  my $fullPath = "MmrTemplates/register/$template";
+  my $fullPath = "$cfgData->{exepath}/MmrTemplates/register/$template";
   if ( !-f $fullPath ) {
     print "Error template does not exist for $fullPath\n";
     exit();
@@ -240,10 +240,18 @@ sub getTemplate {
 #------------------------------------------------------------------------
 
 sub processTemplate {
-  my ( $self, $fullPath, $blockData ) = @_;
-  my $output = "";                            # Passed as a reference!
-  my $tt = Template->new( EVAL_PERL => 1 );
-  $tt->process( $fullPath, $$blockData, \$output ) || die $tt->error;
+  my ( $self, $fullPath, $blockData, $exepath ) = @_;
+  my $output = "";
+
+  # to make this callable from anywhere, the include path needs to be
+  # set to the directory where the main script is called from and 
+  # Absolute paths need to be set.
+  my $tt = Template->new(
+    EVAL_PERL    => 1,
+    ABSOLUTE     => 1,
+    INCLUDE_PATH => $exepath
+  );
+  $tt->process( "$fullPath", $$blockData, \$output ) || die $tt->error;
   return $output;
 }
 
